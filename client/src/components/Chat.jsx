@@ -70,11 +70,19 @@ function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  const [showChatOnMobile, setShowChatOnMobile] = useState(false)
+
   const handleSelectUser = (selectedUser) => {
     setSelectedUser(selectedUser)
     const newRoomId = createRoomId(user.id, selectedUser.id)
     setRoomId(newRoomId)
-    setMessages([]) // Clear messages when switching users
+    setMessages([]) 
+    setShowChatOnMobile(true) // Show chat on mobile when user selected
+  }
+
+  const handleBackToUsers = () => {
+    setShowChatOnMobile(false)
+    setSelectedUser(null)
   }
 
   const sendMessage = () => {
@@ -102,30 +110,41 @@ function Chat() {
   const { logout } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-6xl mx-auto flex gap-0 h-[calc(100vh-2rem)]">
-        {/* User List Sidebar */}
-        <UserList onSelectUser={handleSelectUser} selectedUserId={selectedUser?.id} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 md:p-4">
+      <div className="max-w-6xl mx-auto flex gap-0 h-screen md:h-[calc(100vh-2rem)] bg-white md:bg-transparent shadow-none md:shadow-xl rounded-none md:rounded-lg overflow-hidden">
         
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
+        {/* User List Sidebar - Hidden on mobile if chat is active */}
+        <div className={`w-full md:w-80 flex-shrink-0 bg-white border-r border-gray-200 md:flex flex-col ${showChatOnMobile ? 'hidden' : 'flex'}`}>
+          <UserList onSelectUser={handleSelectUser} selectedUserId={selectedUser?.id} />
+        </div>
+        
+        {/* Chat Area - Hidden on mobile if no user selected */}
+        <div className={`flex-1 flex flex-col bg-white ${!showChatOnMobile ? 'hidden md:flex' : 'flex'}`}>
           {/* Header */}
-          <div className="bg-white rounded-tr-lg shadow-lg px-6 py-4 flex justify-between items-center border-b border-gray-200">
-            <div>
+          <div className="bg-white px-4 md:px-6 py-3 md:py-4 flex justify-between items-center border-b border-gray-200 shadow-sm z-10">
+            <div className="flex items-center gap-3">
+              {/* Back Button for Mobile */}
+              <button 
+                onClick={handleBackToUsers}
+                className="md:hidden p-2 -ml-2 text-gray-600 hover:text-gray-800"
+              >
+                ←
+              </button>
+              
               {selectedUser ? (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800">{selectedUser.email}</h2>
-                  <p className="text-sm text-gray-500">1-1 Chat</p>
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800">{selectedUser.email}</h2>
+                  <p className="text-xs text-gray-500">1-1 Chat</p>
                 </div>
               ) : (
-                <h2 className="text-xl font-bold text-gray-800">Select a user to start chatting</h2>
+                <h2 className="text-lg md:text-xl font-bold text-gray-800">Select a user</h2>
               )}
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600 text-sm">👤 {user?.email}</span>
+            <div className="flex items-center gap-2 md:gap-4">
+              <span className="hidden md:inline text-gray-600 text-sm">👤 {user?.email}</span>
               <button 
                 onClick={logout}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 transform hover:scale-105 text-sm"
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg transition duration-200 text-xs md:text-sm font-medium"
               >
                 Logout
               </button>
@@ -135,19 +154,19 @@ function Chat() {
           {/* Messages Area */}
           {selectedUser ? (
             <>
-              <div className="bg-white px-6 py-4 flex-1 overflow-y-auto shadow-lg">
+              <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 bg-gray-50">
                 {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-gray-400">
+                  <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                     No messages yet. Start the conversation!
                   </div>
                 ) : (
                   messages.map((msg, idx) => (
                     <div 
                       key={idx} 
-                      className={`mb-3 p-3 rounded-lg max-w-[70%] ${
+                      className={`mb-3 p-3 rounded-lg max-w-[85%] md:max-w-[70%] text-sm md:text-base shadow-sm ${
                         msg.sender_id === user?.id || msg.userId === user?.id
-                          ? 'bg-indigo-500 text-white ml-auto'
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-indigo-500 text-white ml-auto rounded-br-none'
+                          : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                       }`}
                     >
                       <p className="break-words">{msg.message || msg.content}</p>
@@ -158,18 +177,19 @@ function Chat() {
               </div>
 
               {/* Input Area */}
-              <div className="bg-white rounded-br-lg shadow-lg px-6 py-4 border-t border-gray-200">
-                <div className="flex gap-3">
+              <div className="bg-white px-4 md:px-6 py-3 md:py-4 border-t border-gray-200">
+                <div className="flex gap-2 md:gap-3">
                   <input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                    className="flex-1 px-4 py-2.5 md:py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition text-sm md:text-base"
                   />
                   <button 
                     onClick={sendMessage}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-200 transform hover:scale-105"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-full font-semibold transition duration-200 text-sm md:text-base shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!message.trim()}
                   >
                     Send
                   </button>
@@ -177,10 +197,10 @@ function Chat() {
               </div>
             </>
           ) : (
-            <div className="bg-white flex-1 shadow-lg rounded-br-lg flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <p className="text-2xl mb-2">👋</p>
-                <p>Select a user from the left to start a conversation</p>
+            <div className="flex-1 flex items-center justify-center bg-gray-50">
+              <div className="text-center text-gray-400 p-8">
+                <p className="text-4xl mb-4">💬</p>
+                <p className="text-lg">Select a user to start chatting</p>
               </div>
             </div>
           )}

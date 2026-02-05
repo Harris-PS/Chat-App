@@ -37,8 +37,10 @@ function UserList({ onSelectUser, selectedUserId }) {
   }
 
   return (
-    <div className="bg-white rounded-l-lg shadow-lg p-4 w-64 border-r border-gray-200">
-      <h3 className="text-lg font-bold text-gray-800 mb-4">💬 Chats</h3>
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-gray-100">
+        <h3 className="text-lg font-bold text-gray-800">💬 Chats</h3>
+      </div>
       
       {users.length === 0 ? (
         <div className="text-gray-500 text-sm">No users available</div>
