@@ -39,8 +39,8 @@ io.use((socket, next) => {
 
   jwt.verify(token, getKey, { 
     algorithms: ['RS256'],
-    audience: 'http://localhost:3000',
-    issuer: 'https://dev-75hmnmpo5heusns5.us.auth0.com/'
+    audience: process.env.AUTH0_AUDIENCE || 'http://localhost:3000',
+    issuer: process.env.AUTH0_ISSUER || 'https://dev-75hmnmpo5heusns5.us.auth0.com/'
   }, async (err, decoded) => {
     if (err) {
       console.error('Token verification failed:', err.message)
