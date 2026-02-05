@@ -73,6 +73,12 @@ function Chat() {
   const [showChatOnMobile, setShowChatOnMobile] = useState(false)
 
   const handleSelectUser = (selectedUser) => {
+    // If selecting the same user, just ensure chat is shown on mobile and return
+    if (selectedUser.id === roomId?.split('_')[2] || selectedUser.id === roomId?.split('_')[1]) { 
+       setShowChatOnMobile(true)
+       return
+    }
+
     setSelectedUser(selectedUser)
     const newRoomId = createRoomId(user.id, selectedUser.id)
     setRoomId(newRoomId)
