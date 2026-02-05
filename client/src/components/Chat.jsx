@@ -133,8 +133,8 @@ function Chat() {
               
               {selectedUser ? (
                 <div>
-                  <h2 className="text-lg md:text-xl font-bold text-gray-800">{selectedUser.email}</h2>
-                  <p className="text-xs text-gray-500">1-1 Chat</p>
+                  <h2 className="text-lg md:text-xl font-bold text-gray-800">{selectedUser.email.split('@')[0]}</h2>
+                  <p className="text-xs text-gray-500">Chat</p>
                 </div>
               ) : (
                 <h2 className="text-lg md:text-xl font-bold text-gray-800">Select a user</h2>
