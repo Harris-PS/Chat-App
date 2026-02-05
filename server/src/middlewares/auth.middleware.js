@@ -1,21 +1,10 @@
-const jwt = require('jsonwebtoken')
+const { auth } = require('express-oauth2-jwt-bearer');
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization
-
-  if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' })
-  }
-
-  const token = authHeader.split(' ')[1]
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    req.userId = decoded.userId
-    next()
-  } catch {
-    return res.status(401).json({ message: 'Invalid token' })
-  }
-}
+const authMiddleware = auth({
+  audience: 'http://localhost:3000', // We can use this as API identifier
+  issuerBaseURL: `https://dev-75hmnmpo5heusns5.us.auth0.com/`,
+  tokenSigningAlg: 'RS256'
+});
 
 module.exports = authMiddleware
+
